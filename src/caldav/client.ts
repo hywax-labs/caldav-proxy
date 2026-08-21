@@ -103,11 +103,12 @@ export function toDavRequestHref(href: string, baseUrl: string): string {
 
 export class TsdavSourceClient implements SourceCalendarClient {
   readonly #calendarUrl: string
+  readonly #fetch: typeof fetch
   readonly #headers: Record<string, string>
   readonly #uidSecret: string
-  readonly #fetchOptions: RequestInit
+  readonly #requestTimeoutMs: number
 
-  constructor(config: AppConfig) {
+  constructor(config: AppConfig, options: { fetch?: typeof fetch, requestTimeoutMs?: number } = {}) {
     // SOURCE_CALDAV_URL is validated separately and documents the account endpoint.
     // SOURCE_CALENDAR_URL is deliberately the only URL queried for calendar data.
     void config.sourceCalDavUrl
@@ -116,7 +117,8 @@ export class TsdavSourceClient implements SourceCalendarClient {
     this.#headers = {
       authorization: `Basic ${Buffer.from(`${config.sourceCalDavUsername}:${config.sourceCalDavPassword}`, 'utf8').toString('base64')}`,
     }
-    this.#fetchOptions = { signal: AbortSignal.timeout(30_000) }
+    this.#fetch = options.fetch ?? globalThis.fetch
+    this.#requestTimeoutMs = options.requestTimeoutMs ?? 30_000
   }
 
   async fetch(options: {
@@ -153,7 +155,8 @@ export class TsdavSourceClient implements SourceCalendarClient {
       filters,
       depth: '1',
       headers: this.#headers,
-      fetchOptions: this.#fetchOptions,
+      fetchOptions: this.#fetchOptions(),
+      fetch: this.#fetch,
     })
     validateResponses(metadata, 'calendar-query')
 
@@ -180,7 +183,8 @@ export class TsdavSourceClient implements SourceCalendarClient {
           .map(href => toDavRequestHref(href, this.#calendarUrl)),
         depth: '1',
         headers: this.#headers,
-        fetchOptions: this.#fetchOptions,
+        fetchOptions: this.#fetchOptions(),
+        fetch: this.#fetch,
       })
       validateResponses(responses, 'calendar-multiget')
       for (const response of responses) {
@@ -207,7 +211,8 @@ export class TsdavSourceClient implements SourceCalendarClient {
       syncLevel: 1,
       syncToken,
       headers: this.#headers,
-      fetchOptions: this.#fetchOptions,
+      fetchOptions: this.#fetchOptions(),
+      fetch: this.#fetch,
     })
     validateResponses(responses, 'sync-collection')
     const nextToken = responses.map(response => findSyncToken(response.raw)).find(Boolean)
@@ -240,7 +245,8 @@ export class TsdavSourceClient implements SourceCalendarClient {
         objectUrls: missingDataHrefs.map(href => toDavRequestHref(href, this.#calendarUrl)),
         depth: '1',
         headers: this.#headers,
-        fetchOptions: this.#fetchOptions,
+        fetchOptions: this.#fetchOptions(),
+        fetch: this.#fetch,
       })
       validateResponses(fetched, 'calendar-multiget')
       for (const response of fetched) {
@@ -274,12 +280,19 @@ export class TsdavSourceClient implements SourceCalendarClient {
         props: { 'd:sync-token': {} },
         depth: '0',
         headers: this.#headers,
-        fetchOptions: this.#fetchOptions,
+        fetchOptions: this.#fetchOptions(),
+        fetch: this.#fetch,
       })
       return responses.map(response => propertyText(response.props?.syncToken) ?? findSyncToken(response.raw)).find(Boolean) ?? null
     }
     catch {
       return null
     }
+  }
+
+  #fetchOptions(): RequestInit {
+    // AbortSignal.timeout() is one-shot. Reusing it would permanently abort all
+    // requests made after the first timeout window elapsed.
+    return { signal: AbortSignal.timeout(this.#requestTimeoutMs) }
   }
 }
