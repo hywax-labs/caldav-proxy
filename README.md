@@ -164,6 +164,8 @@ bun run lint
 docker build -t caldav-anonymous-mirror .
 ```
 
+CI builds the image on pull requests and publishes it to GHCR from `main` and `v*` tags as `ghcr.io/hywax-labs/caldav-proxy`. Dummy source credentials used for the `/health` smoke test are not production secrets.
+
 The test suite covers fail-closed anonymization, HMAC UID stability, all-day and recurring events with exceptions/overrides, transactional create/update/delete/error sync behavior, authentication, `PROPFIND`, both CalDAV reports, event GET/HEAD, mutation rejection, and malicious/malformed XML.
 
 ## Operational notes

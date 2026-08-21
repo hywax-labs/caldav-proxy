@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    paths-ignore:
+      - "*.md"
+      - "AGENTS.md"
+      - "apps/landing/**"
+      - ".github/**"
+      - "!.github/workflows/ci.yml"
+    branches:
+      - main
+  pull_request:
+    paths-ignore:
+      - "*.md"
+      - "docker/**"
+      - "apps/landing/**"
+      - ".github/**"
+      - "!.github/workflows/ci.yml"
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: ESLint
+        run: bun run lint
+
+      - name: Typecheck
+        run: bun run typecheck
