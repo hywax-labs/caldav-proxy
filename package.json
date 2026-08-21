@@ -1,7 +1,7 @@
 {
   "name": "@hywax-labs/caldav-proxy",
   "type": "module",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "bun --watch src/index.ts",
