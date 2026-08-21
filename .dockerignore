@@ -1,9 +1,11 @@
 .git
 .env
+.github
+.certs
 data
 node_modules
 coverage
 *.log
 README.md
 tests
-.certs
+Makefile
