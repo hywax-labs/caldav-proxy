@@ -39,8 +39,8 @@ for (const resource of resources) {
     resource.ok
     && Object.keys(resource.props?.resourcetype ?? {}).includes('calendar')
   ) {
-    console.log(resource.props?.displayname ?? '(без названия)')
-    console.log(new URL(resource.href, homeUrl).href)
+    console.log(resource.props?.displayname ?? '(no name)')
+    console.log(new URL(resource.href ?? '', homeUrl).href)
     console.log()
   }
 }
