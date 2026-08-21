@@ -1,10 +1,10 @@
-FROM oven/bun:1.3.14-slim AS dependencies
+FROM oven/bun:1.4.0-slim AS dependencies
 
 WORKDIR /app
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile --production
 
-FROM oven/bun:1.3.14-slim AS runtime
+FROM oven/bun:1.4.0-slim AS runtime
 
 ENV NODE_ENV=production
 WORKDIR /app
