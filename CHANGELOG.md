@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.2.1
+
+[compare changes](https://github.com/hywax-labs/caldav-proxy/compare/v0.2.0...v0.2.1)
+
+### 💅 Refactors
+
+- Enhance TsdavSourceClient to support customizable fetch and request timeout ([c4b75f4](https://github.com/hywax-labs/caldav-proxy/commit/c4b75f4))
+
+### ❤️ Contributors
+
+- Hywax <a.hywax@gmail.com>
+
 ## v0.2.0
 
 
