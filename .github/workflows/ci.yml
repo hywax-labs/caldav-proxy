@@ -22,7 +22,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  check:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -37,6 +37,9 @@ jobs:
 
       - name: ESLint
         run: bun run lint
+
+      - name: Test
+        run: bun run test
 
       - name: Typecheck
         run: bun run typecheck
