@@ -31,7 +31,7 @@ async function main(): Promise<void> {
   process.once('SIGTERM', () => void shutdown('SIGTERM'))
 }
 
-main().catch(() => {
-  logger.error('startup failed')
+main().catch((e) => {
+  logger.error('startup failed', { message: e.message })
   process.exitCode = 1
 })
